@@ -1,0 +1,37 @@
+sudo bash
+
+#install mariadb (generic, free, open-source version of mysql)
+yum install -y mariadb-server mariadb
+systemctl start mariadb
+mysql_secure_installation
+#I removed anonymous users, disallowed remote root login, and changed root password
+#then create a new user
+mysql -u root -p
+#enter password and you're in as root
+CREATE USER 'guest' IDENTIFIED BY 'justvisiting'
+
+#then give the user some privileges
+##you can check privileges with SHOW GRANTS FOR 'guest';
+#So, I gave the guest account the most basic, read-only level of access:
+GRANT SELECT ON *.* TO 'guest';
+
+##then, allow for remote connections
+vi /etc/my.cnf
+#in this file, add a line with "bind-address=youripaddress" -- so mine looks like:
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+bind-address=10.134.196.46
+
+##restart the server
+systemctl restart mariadb
+
+yum install -y iptables-services
+systemctl enable iptables
+/sbin/iptables -A INPUT -i eth0 -p tcp --destination-port 3306 -j ACCEPT
+service iptables save
+
+##you should now be able to log in remotely
+##of course, with orion machines, you'll have to be on rice owls to do so (which is a good thing!)
+##for me, then, it looks like:
+mysql -u guest -h 10.134.196.46 -p
