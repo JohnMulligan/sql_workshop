@@ -1,4 +1,4 @@
-MySQL workshop, October 14
+MySQL workshop
 
 In this workshop, we will learn some basic SQL commands:
 * Parse CSV files and construct tables out of them
